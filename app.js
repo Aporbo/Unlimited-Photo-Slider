@@ -7,7 +7,6 @@ const sliderContainer = document.getElementById('sliders');
 // selected image 
 let sliders = [];
 
-
 // If this key doesn't work
 // Find the name in the url and go to their website
 // to create your own api key
@@ -15,17 +14,20 @@ const KEY = '15674931-a9d714b6e9d654524df198e00&q';
 
 // show images 
 const showImages = (images) => {
+  
   imagesArea.style.display = 'block';
   gallery.innerHTML = '';
   // show gallery title
+  toggleSpinner();
   galleryHeader.style.display = 'flex';
   images.forEach(image => {
     let div = document.createElement('div');
     div.className = 'col-lg-3 col-md-4 col-xs-6 img-item mb-2';
     div.innerHTML = ` <img class="img-fluid img-thumbnail" onclick=selectItem(event,"${image.webformatURL}") src="${image.webformatURL}" alt="${image.tags}">`;
     gallery.appendChild(div)
+    
   })
-
+  // document.getElementById("photo-count").style.display='none';
 }
 
 const getImages = (query) => {
@@ -38,14 +40,13 @@ const getImages = (query) => {
 let slideIndex = 0;
 const selectItem = (event, img) => {
   let element = event.target;
-
+  element.classList.toggle('added');
   let item = sliders.indexOf(img);
   if (item === -1) {
-    sliders.push(img);
-    element.classList.add('added');
+    sliders.push(img);    
   } else {
-    sliders.slice(img);
-    element.classList.remove('added');   
+    let deselect = sliders.indexOf(img);
+        sliders.splice(deselect, 1);
   }
 }
 var timer
@@ -66,6 +67,15 @@ const createSlider = () => {
 
   sliderContainer.appendChild(prevNext)
   document.querySelector('.main').style.display = 'block';
+  let count = sliders.length;
+  console.log(count);
+   document.getElementById("back-button").addEventListener('click',function(){
+     document.getElementById("next-page").style.display='none';
+    //  document.getElementById("main-page").style.display='block';
+    document.getElementById("search").value="";
+   })
+   document.getElementById("photo-count").style.display='block';
+  document.getElementById("count-photo").innerText=count+" Pictures in this Slideshow";
   // hide image aria
   imagesArea.style.display = 'none';
   const duration = document.getElementById('duration').value || 1000;
@@ -117,27 +127,34 @@ const changeSlide = (index) => {
   })
 
   items[index].style.display = "block"
+ 
 }
-
-document.getElementById("search").addEventListener("keypress",function(event){
-  if(event.key=='Enter'){
-document.getElementById("search-btn").click();
-  }
-})
-
+enterButton("duration","create-slider");
+enterButton("search","search-btn");
+function enterButton(take,pass){
+  document.getElementById(take).addEventListener("keypress",function(event){
+    if(event.key=='Enter'){
+  document.getElementById(pass).click();
+    }
+  })
+}
+const search = document.getElementById('search');
 searchBtn.addEventListener('click', function () {
   document.querySelector('.main').style.display = 'none';
   clearInterval(timer);
-  const search = document.getElementById('search');
-  getImages(search.value)
+  getImages(search.value);
   sliders.length = 0;
+  toggleSpinner();
 })
 
 sliderBtn.addEventListener('click', function () {
   createSlider()
 })
+const toggleSpinner = () => {
+  const spinner = document.getElementById('loading-spinner').classList;
+  const imagesArea = document.querySelector('.images').classList;
+  spinner.toggle('d-none');
+  imagesArea.toggle('d-none');
+};
 
-const toggleSpinner =()=>{
-  const spinner =document.getElementById("loading-spinner");
-  // spinner.classList.toggle('d-none')
-}
+
